@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { NotFoundException } from 'src/common/errors';
 
 describe('UserService', () => {
   let service: UserService;
@@ -36,6 +37,7 @@ describe('UserService', () => {
         id: 1,
         username: 'testuser',
         passwordHash: 'password123',
+        articles: [],
       };
     });
 
@@ -70,6 +72,7 @@ describe('UserService', () => {
         id: 1,
         username: 'testuser',
         passwordHash: 'password123',
+        articles: [],
       };
     });
 
@@ -97,6 +100,39 @@ describe('UserService', () => {
         username: 'nonexistentuser',
       });
       expect(result).toBeNull();
+    });
+
+    describe('getOne()', () => {
+      let mockUser: User;
+
+      beforeEach(() => {
+        jest.clearAllMocks();
+        mockUser = {
+          id: 1,
+          username: 'testuser',
+          passwordHash: 'password123',
+          articles: [],
+        };
+      });
+
+      it('should return the user when found by id', async () => {
+        jest.spyOn(service, 'findOne').mockResolvedValue(mockUser);
+
+        const result = await service.getOne(1);
+
+        expect(service.findOne).toHaveBeenCalledWith(1);
+        expect(result).toEqual(mockUser);
+      });
+
+      it('should throw NotFoundException when user is not found', async () => {
+        jest.spyOn(service, 'findOne').mockResolvedValue(null);
+
+        await expect(service.getOne(999)).rejects.toThrow(
+          new NotFoundException('User with id 999 not found'),
+        );
+
+        expect(service.findOne).toHaveBeenCalledWith(999);
+      });
     });
   });
 });

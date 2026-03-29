@@ -1,11 +1,7 @@
-import { Controller, Post, Body, HttpCode } from '@nestjs/common';
-import {
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiOperation,
-} from '@nestjs/swagger';
+import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { ApiOperation } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { ApiErrorResponse } from 'src/common/api/decorators';
+import { AppErrorResponse, AppResponse } from 'src/common/api/decorators';
 import {
   SignInRequestDto,
   SignInResponseDto,
@@ -20,8 +16,8 @@ export class AuthController {
 
   @Post('signup')
   @ApiOperation({ summary: 'Register a new user' })
-  @ApiCreatedResponse({ type: SignUpResponseDto })
-  @ApiErrorResponse(400)
+  @AppResponse(HttpStatus.CREATED, { type: SignUpResponseDto })
+  @AppErrorResponse(HttpStatus.BAD_REQUEST)
   async signUp(
     @Body(new ValidationPipe()) signUpDto: SignUpRequestDto,
   ): Promise<SignUpResponseDto> {
@@ -38,10 +34,8 @@ export class AuthController {
 
   @Post('signin')
   @ApiOperation({ summary: 'Sign in a user' })
-  @ApiOkResponse({ type: SignInResponseDto })
-  @HttpCode(200)
-  @ApiErrorResponse(400)
-  @ApiErrorResponse(401)
+  @AppResponse(HttpStatus.OK, { type: SignInResponseDto })
+  @AppErrorResponse([HttpStatus.BAD_REQUEST, HttpStatus.UNAUTHORIZED])
   async signIn(
     @Body(new ValidationPipe()) signInDto: SignInRequestDto,
   ): Promise<SignInResponseDto> {

@@ -1,26 +1,26 @@
-import { ExceptionFilter, Catch, ArgumentsHost, Logger } from '@nestjs/common';
-import { getStatusCodeMessage, responseErrorJSON } from 'src/common/api/utils';
-import { mapErrorToHTTPStatus } from '../utils';
-import { AppException } from '..';
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  Logger,
+  HttpStatus,
+} from '@nestjs/common';
+import { getStatusCodeErrorStr, responseErrorJSON } from 'src/common/api/utils';
+import { AppException, AppExceptionType } from '..';
+import { errorToHTTPStatus } from '../utils';
 
-@Catch()
+@Catch(AppException)
 export class AppExceptionFilter implements ExceptionFilter {
-  catch(exception: unknown, host: ArgumentsHost) {
+  catch(exception: AppException, host: ArgumentsHost) {
     const logger = new Logger(AppExceptionFilter.name);
 
-    const statusCode = mapErrorToHTTPStatus(exception);
-    let message = getStatusCodeMessage(statusCode) ?? 'API error';
+    let statusCode: HttpStatus = errorToHTTPStatus(exception);
+    let message = exception.message;
 
-    if (exception instanceof AppException && statusCode < 500) {
-      message = exception.message;
-    }
+    if (statusCode >= 500 || exception.type === AppExceptionType.SERVER) {
+      message = getStatusCodeErrorStr(statusCode);
 
-    if (statusCode >= 500) {
-      if (exception instanceof Error) {
-        logger.error(exception.message, exception.stack);
-      } else {
-        logger.error(exception);
-      }
+      logger.error(exception, exception.cause);
     }
 
     const ctx = host.switchToHttp();

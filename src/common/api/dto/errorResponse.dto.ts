@@ -11,8 +11,14 @@ export class ErrorResponseDto {
 
   @ApiProperty({
     description: 'A message describing the error',
+    required: false,
   })
   @IsString()
   @IsOptional()
-  message?: string;
+  message?: string | string[];
+
+  @ApiProperty({
+    description: 'Error name',
+  })
+  error: string;
 }

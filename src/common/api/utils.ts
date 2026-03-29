@@ -10,22 +10,27 @@ export function responseErrorJSON(
   statusCode: number,
   message: string,
 ) {
-  const payload = plainToClass(ErrorResponseDto, { statusCode, message });
+  const payload = plainToClass(ErrorResponseDto, {
+    statusCode,
+    message,
+    error: getStatusCodeErrorStr(statusCode),
+  });
 
   const response = ctx.getResponse<Response<ErrorResponseDto>>();
 
   response.status(statusCode).json(payload);
 }
 
-export function getStatusCodeMessage(statusCode: number): string | undefined {
-  return STATUS_CODES[statusCode];
+export function getStatusCodeErrorStr(statusCode: number): string {
+  return STATUS_CODES[statusCode] ?? 'API error';
 }
 
 export function buildErrorResponseSchema(
   statusCode: number,
+  error: string,
   message?: string,
 ): SchemaObject {
-  return {
+  const schema: SchemaObject = {
     type: 'object',
     properties: {
       statusCode: {
@@ -36,8 +41,15 @@ export function buildErrorResponseSchema(
       message: {
         type: 'string',
         description: 'A message describing the error',
-        example: message ?? `API error`,
+        example: message ?? 'error description',
+      },
+      error: {
+        type: 'string',
+        description: 'Error name',
+        example: error,
       },
     },
   };
+
+  return schema;
 }

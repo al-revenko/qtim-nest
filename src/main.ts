@@ -22,7 +22,9 @@ async function bootstrap() {
         'Internal server error',
       ),
     })
+    .addBearerAuth()
     .build();
+
   const documentFactory = () =>
     SwaggerModule.createDocument(app, config, {
       extraModels: [ErrorResponseDto],

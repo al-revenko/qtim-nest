@@ -21,11 +21,6 @@ export class AuthService {
   ) {}
 
   async signUp(username: string, password: string) {
-    const existingUser = await this.userService.findOneByUsername(username);
-    if (existingUser) {
-      throw new ValidationException('Username already exists');
-    }
-
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 

@@ -7,6 +7,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { AccessTokenDto } from './accessToken.dto';
+import { Expose } from 'class-transformer';
 
 export class SignUpRequestDto {
   @ApiProperty({
@@ -39,5 +40,6 @@ export class SignUpResponseDto extends AccessTokenDto {
   })
   @IsNotEmpty()
   @IsNumber()
+  @Expose()
   userId: number;
 }

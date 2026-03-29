@@ -49,6 +49,7 @@ describe('AuthService', () => {
         id: 1,
         username: 'testuser',
         passwordHash: 'hashedpassword123',
+        articles: [],
       };
     });
 
@@ -106,6 +107,7 @@ describe('AuthService', () => {
         id: 1,
         username: 'testuser',
         passwordHash: 'hashedpassword123',
+        articles: [],
       };
     });
 
@@ -177,6 +179,7 @@ describe('AuthService', () => {
         id: 1,
         username: 'testuser',
         passwordHash: 'hashedpassword123',
+        articles: [],
       };
     });
 
