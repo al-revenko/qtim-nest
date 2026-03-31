@@ -11,6 +11,7 @@ import {
   HttpStatus,
   Patch,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ArticleService } from './article.service';
@@ -25,10 +26,15 @@ import {
   UpdateArticleRequestDto,
 } from './dto';
 import { AuthGuard } from '../auth/gurards';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
+import { CacheService } from '../cache/cache.service';
 
 @Controller('article')
 export class ArticleController {
-  constructor(private readonly articleService: ArticleService) {}
+  constructor(
+    private readonly articleService: ArticleService,
+    private readonly cacheService: CacheService,
+  ) {}
 
   @Post()
   @UseGuards(AuthGuard)
@@ -53,6 +59,7 @@ export class ArticleController {
   }
 
   @Get()
+  @UseInterceptors(CacheInterceptor)
   @ApiOperation({ summary: 'Get all articles use filters' })
   @AppResponse(HttpStatus.OK, { type: GetAllArticlesResponseDto })
   @AppErrorResponse([HttpStatus.NOT_FOUND, HttpStatus.BAD_REQUEST])
@@ -83,6 +90,7 @@ export class ArticleController {
   }
 
   @Get(':id')
+  @UseInterceptors(CacheInterceptor)
   @ApiOperation({ summary: 'Get an article by ID' })
   @AppResponse(HttpStatus.OK, { type: GetArticleResponseDto })
   @AppErrorResponse([HttpStatus.NOT_FOUND, HttpStatus.BAD_REQUEST])
@@ -110,6 +118,7 @@ export class ArticleController {
     @Body(new ValidationPipe()) updateArticleDto: UpdateArticleRequestDto,
   ): Promise<CreateArticleResponseDto> {
     const article = await this.articleService.update(id, updateArticleDto);
+    await this.cacheService.clear();
 
     return article;
   }
@@ -123,6 +132,7 @@ export class ArticleController {
     id: number,
   ): Promise<DeleteArticleResponseDto> {
     const article = await this.articleService.delete(id);
+    await this.cacheService.clear();
 
     return article;
   }

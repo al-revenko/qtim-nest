@@ -5,9 +5,15 @@ import { Article } from './article.entity';
 import { UserModule } from '../user/user.module';
 import { ArticleController } from './article.controller';
 import { AuthModule } from '../auth/auth.module';
+import { CacheModule } from '../cache/cache.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Article]), UserModule, AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([Article]),
+    CacheModule.register('article'),
+    UserModule,
+    AuthModule,
+  ],
   providers: [ArticleService],
   exports: [ArticleService],
   controllers: [ArticleController],
